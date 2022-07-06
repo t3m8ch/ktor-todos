@@ -10,7 +10,7 @@ fun main() {
 
     embeddedServer(
         Netty,
-        port = dotenv["WEBAPP_PORT"].toInt() ?: 8000,
+        port = dotenv["WEBAPP_PORT"]?.toInt() ?: 8000,
         host = dotenv["WEBAPP_HOST"] ?: "localhost",
     ) {
         configureRouting()

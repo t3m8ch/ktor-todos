@@ -12,6 +12,7 @@ import io.ktor.client.statement.*
 import kotlin.test.*
 import io.ktor.server.testing.*
 import io.github.t3m8ch.plugins.*
+import io.github.t3m8ch.web.plugins.configureRouting
 
 class ApplicationTest {
     @Test

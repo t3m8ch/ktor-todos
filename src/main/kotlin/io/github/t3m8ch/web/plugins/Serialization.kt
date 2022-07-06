@@ -1,4 +1,4 @@
-package io.github.t3m8ch.plugins
+package io.github.t3m8ch.web.plugins
 
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.plugins.contentnegotiation.*

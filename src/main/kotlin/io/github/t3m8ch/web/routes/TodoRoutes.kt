@@ -40,7 +40,6 @@ fun Route.todoRouting() {
         }
         post {
             val createTodoDTO = call.receive<CreateTodoDTO>()
-            println(createTodoDTO)
 
             todoDAO.create(createTodoDTO.text, createTodoDTO.isCompleted)
             call.respond(CommandStatusDTO())

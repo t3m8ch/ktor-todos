@@ -2,11 +2,25 @@ val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
 val koin_version: String by project
+val pgsql_jdbc_version: String by project
+val liquibase_version: String by project
 
 plugins {
     application
     kotlin("jvm") version "1.7.0"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.0"
+    id("org.liquibase.gradle") version "2.0.4"
+}
+
+liquibase {
+    activities.create("main") {
+        this.arguments = mapOf(
+            "logLevel" to "info",
+            "changeLogFile" to "src/main/resources/db/changelog.sql",
+            "url" to "jdbc:postgresql://localhost/rest-todolist-kotlin",
+        )
+    }
+    runList = "main"
 }
 
 group = "io.github.t3m8ch"
@@ -32,6 +46,10 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     implementation("io.github.cdimascio:dotenv-kotlin:6.3.1")
+    implementation("org.postgresql:postgresql:$pgsql_jdbc_version")
+    implementation("org.liquibase:liquibase-core:$liquibase_version")
+    liquibaseRuntime("org.liquibase:liquibase-core:$liquibase_version")
+    liquibaseRuntime("org.postgresql:postgresql:$pgsql_jdbc_version")
     testImplementation("io.ktor:ktor-server-tests-jvm:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }

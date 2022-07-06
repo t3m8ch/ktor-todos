@@ -1,6 +1,7 @@
 package io.github.t3m8ch.db.dao.pgsql
 
 import io.github.t3m8ch.db.dao.interfaces.TodoDAO
+import io.github.t3m8ch.db.exceptions.TodoNotFound
 import io.github.t3m8ch.db.models.TodoModel
 import java.sql.Connection
 import java.sql.ResultSet
@@ -18,14 +19,16 @@ class PgsqlTodoDAO(private val connection: Connection) : TodoDAO {
         return models
     }
 
-    override fun getById(id: Int): TodoModel? {
+    override fun getById(id: Int): TodoModel {
         val statement = connection.prepareStatement("SELECT * FROM todo WHERE id = ?;")
         statement.setInt(1, id)
 
         val resultSet = statement.executeQuery()
-        resultSet.next()
 
-        return createTodoModelFromResultSet(resultSet)
+        if (resultSet.next()) {
+            return createTodoModelFromResultSet(resultSet)
+        }
+        throw TodoNotFound()
     }
 
     override fun create(text: String, isCompleted: Boolean) {
@@ -39,13 +42,15 @@ class PgsqlTodoDAO(private val connection: Connection) : TodoDAO {
         statement.executeUpdate()
     }
 
-    override fun deleteByIdIf(id: Int): Boolean {
+    override fun deleteById(id: Int) {
         val statement = connection.prepareStatement(
             "DELETE FROM todo WHERE id = ?"
         )
         statement.setInt(1, id)
 
-        return statement.executeUpdate() >= 1
+        if (statement.executeUpdate() < 1) {
+            throw TodoNotFound()
+        }
     }
 }
 

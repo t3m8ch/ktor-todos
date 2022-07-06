@@ -1,6 +1,7 @@
 package io.github.t3m8ch.web.routes
 
 import io.github.t3m8ch.db.dao.interfaces.TodoDAO
+import io.github.t3m8ch.db.exceptions.TodoNotFound
 import io.github.t3m8ch.db.models.TodoModel
 import io.github.t3m8ch.web.dto.CommandStatusDTO
 import io.github.t3m8ch.web.dto.CreateTodoDTO
@@ -26,17 +27,21 @@ fun Route.todoRouting() {
                 status = HttpStatusCode.BadRequest,
             )
 
-            val model = todoDAO.getById(
-                id.toIntOrNull() ?: return@get call.respondText(
-                    "Not valid id",
-                    status = HttpStatusCode.BadRequest,
+            try {
+                val model = todoDAO.getById(
+                    id.toIntOrNull() ?: return@get call.respondText(
+                        "Not valid id",
+                        status = HttpStatusCode.BadRequest,
+                    )
                 )
-            ) ?: return@get call.respondText(
-                "Not found",
-                status = HttpStatusCode.NotFound,
-            )
+                call.respond(mapModelToDTO(model))
+            } catch (_: TodoNotFound) {
+                call.respondText(
+                    "Not found",
+                    status = HttpStatusCode.NotFound,
+                )
+            }
 
-            call.respond(mapModelToDTO(model))
         }
         post {
             val createTodoDTO = call.receive<CreateTodoDTO>()
@@ -50,15 +55,15 @@ fun Route.todoRouting() {
                 status = HttpStatusCode.BadRequest,
             )
 
-            if (todoDAO.deleteByIdIf(
+            try {
+                todoDAO.deleteById(
                     id.toIntOrNull() ?: return@delete call.respondText(
                         "Not valid id",
                         status = HttpStatusCode.BadRequest,
                     )
                 )
-            ) {
                 call.respond(CommandStatusDTO())
-            } else {
+            } catch (_: TodoNotFound) {
                 call.respondText(
                     "Not found",
                     status = HttpStatusCode.NotFound,
